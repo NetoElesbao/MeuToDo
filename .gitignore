@@ -1,0 +1,16 @@
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+appsettings.Development.json
+launchSettings.json
+
+.vs/
+*.suo
+*.cache
+
+*.csproj.user
+*.csproj.nuget.g.props
+*.csproj.nuget.g.targets
