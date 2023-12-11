@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MeuToDo.Data;
 
 namespace MeuToDo.Models
 {
     public class ToDo
     {
+        public ToDo() { }
         // public ToDo() { }
         public ToDo(string title)
         {
@@ -14,7 +16,7 @@ namespace MeuToDo.Models
             Id = random.Next(1, 100);
             Title = title;
             Date = DateTime.Now;
-            Done = true;
+            Done = false;
         }
 
         public int Id { get; set; }

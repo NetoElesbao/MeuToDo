@@ -1,6 +1,6 @@
 using MeuToDo.Data;
 using MeuToDo.Models;
-using MeuToDo.ViewModel;
+using MeuToDo.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ namespace MeuToDo.Controllers
             [FromServices] AppDbContext context
         )
         {
-            var listTodos = await context.Todos.AsNoTracking().ToListAsync();
+            var listTodos = await context.Todos.AsNoTracking().FirstOrDefaultAsync();
 
             if (listTodos is null) return NotFound("List empty");
             return Ok(listTodos);
@@ -35,8 +35,7 @@ namespace MeuToDo.Controllers
             .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id.Equals(id));
 
-            if (todo is null) return NotFound();
-            return Ok(todo);
+            return todo is null ? NotFound() : Ok(todo);
         }
 
         [HttpPost]
@@ -50,10 +49,37 @@ namespace MeuToDo.Controllers
             if (!ModelState.IsValid) return BadRequest();
 
             var todo = new ToDo(viewModel.Title);
-            await context.Todos.AddAsync(todo);
+
+            try
+            {
+                await context.Todos.AddAsync(todo);
+                await context.SaveChangesAsync();
+                return Created(uri: $"v1/todos/{todo.Id}", todo);
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+        }
+
+        [HttpDelete]
+        [Route(template: "todos/{id}")]
+        public async Task<IActionResult> DeleteAsync
+        (
+            AppDbContext context,
+            [FromRoute] int id
+        )
+        {
+
+            var todo = await context.Todos.FirstOrDefaultAsync(e => e.Id == id);
+            if (todo is null) return NotFound("Not found!");
+
+            context.Todos.Remove(todo);
             await context.SaveChangesAsync();
 
-            return Created("todos/", todo.Id);
+            return Ok("Deleted");
         }
     }
 }
+
